@@ -30,6 +30,7 @@ backend/reports/*
 
 # Heavy Model Weights (GitHub has a 100MB file limit)
 *.pt
+!backend/models/best.pt
 *.onnx
 *.weights
 *.bin
