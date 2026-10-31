@@ -1,6 +1,14 @@
 'use client';
+
 import { useState, useRef, useCallback } from 'react';
-import { detectImage, detectVideo, type DetectionResult, type VideoDetectionResult, categoryIcon, API_BASE } from '@/lib/api';
+import {
+  detectVideo,
+  type VideoDetectionResult,
+  categoryIcon,
+  API_BASE,
+  type Detection,
+} from '@/lib/api';
+import { detectImageBrowser } from '@/lib/yoloBrowser';
 import { supabaseInspectionService } from '@/lib/supabaseInspectionService';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -264,7 +272,7 @@ export default function DetectPage() {
   const [saveIncident, setSaveIncident] = useState(true);
   const [requiredPpe, setRequiredPpe] = useState<string[]>(['helmet', 'vest', 'gloves']);
   const [sampleRate, setSampleRate] = useState(30);
-  const [imgResult, setImgResult] = useState<DetectionResult | null>(null);
+  const [imgResult, setImgResult] = useState<Awaited<ReturnType<typeof detectImageBrowser>> | null>(null);
   const [vidResult, setVidResult] = useState<VideoDetectionResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -313,7 +321,7 @@ export default function DetectPage() {
     setSupabaseSyncStatus('idle');
     try {
       if (mode === 'image') {
-        const result = await detectImage(file, conf, saveIncident, requiredPpe.join(','));
+        const result = await detectImageBrowser(file, conf, requiredPpe);
         setImgResult(result);
         setZoomOrig({ scale: 1, x: 0, y: 0 });
         setZoomRes({ scale: 1, x: 0, y: 0 });
@@ -710,7 +718,7 @@ export default function DetectPage() {
               <div className="empty-state" style={{ height: '100%' }}>
                 <div className="empty-state-icon">🎯</div>
                 <h3>Listo para analizar</h3>
-                <p>Sube una {mode === 'image' ? 'imagen' : 'video'} y presiona &quot;Detectar EPP&quot;</p>
+                <p>Sube una {mode === 'image' ? 'imagen' : 'video'} y presiona "Detectar EPP"</p>
               </div>
             </div>
           )}
@@ -907,7 +915,7 @@ export default function DetectPage() {
                 </div>
                 <div>
                   <ZoomableImage
-                    src={`${API_BASE}${imgResult.result_file}`}
+                    src={imgResult.annotated_url}
                     alt="resultado"
                     label="Resultado con detecciones"
                     state={zoomRes}
@@ -1115,7 +1123,7 @@ export default function DetectPage() {
                 />
               )}
               <ZoomableImage
-                src={`${API_BASE}${imgResult.result_file}`}
+                src={imgResult.annotated_url}
                 alt="resultado"
                 label="Resultado con detecciones"
                 state={zoomRes}
