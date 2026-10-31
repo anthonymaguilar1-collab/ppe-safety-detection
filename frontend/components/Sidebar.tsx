@@ -110,7 +110,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <div className="status-indicator">
             <div className={`status-dot ${model?.model_loaded ? 'online' : 'offline'}`} />
             <div className="status-text">
-              <strong>{model?.model_loaded ? 'YOLOv8 Activo' : 'Sin Modelo'}</strong>
+              <strong>{model?.model_loaded ? 'YOLO26n Activo' : 'Sin Modelo'}</strong>
               <span
                 style={{
                   display: 'inline-block',
